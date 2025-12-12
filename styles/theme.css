@@ -594,21 +594,43 @@ header.hero {
 .games-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.games-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .game-card {
-  position: relative;
   padding: 1.5rem;
-  background: var(--snow-white);
   border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.75));
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: var(--shadow);
-  border: 1px solid rgba(228, 30, 38, 0.1);
-  overflow: hidden;
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+}
+
+.game-card .badge {
+  align-self: start;
+  background: rgba(228, 30, 38, 0.12);
+  color: var(--deep-cherry);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  gap: 0.3rem;
 }
 
 .game-card h3 {
-  margin: 0 0 0.5rem;
+  margin: 0.1rem 0;
 }
 
 .badge {
@@ -619,6 +641,172 @@ header.hero {
   border-radius: 999px;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 20;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal-panel {
+  width: min(960px, 96vw);
+  max-height: 90vh;
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.modal .close {
+  font-size: 1.35rem;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.game-shell {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.game-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.scoreboard {
+  display: flex;
+  gap: 1rem;
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.game-canvas {
+  width: 100%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), rgba(239, 247, 255, 0.9)),
+    linear-gradient(180deg, #f7fbff 0%, #dbeeff 100%);
+  border-radius: var(--radius-lg);
+  border: 2px solid rgba(228, 30, 38, 0.18);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.06);
+}
+
+.matcher-shell {
+  position: relative;
+}
+
+.matcher-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+}
+
+.card-tile {
+  position: relative;
+  padding-top: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(255, 237, 234, 0.95));
+  border: 2px solid rgba(228, 30, 38, 0.15);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-tile:focus-visible {
+  outline: 3px solid var(--coke-red);
+  outline-offset: 2px;
+}
+
+.card-tile .face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  border-radius: inherit;
+  backface-visibility: hidden;
+}
+
+.card-tile .back {
+  background: repeating-linear-gradient(45deg, #fff5f5, #fff5f5 10px, #ffe3e3 10px, #ffe3e3 20px);
+  color: var(--deep-cherry);
+  font-weight: 700;
+}
+
+.card-tile.revealed .front,
+.card-tile.matched .front {
+  background: #ffffff;
+}
+
+.card-tile.matched {
+  box-shadow: 0 12px 18px rgba(228, 30, 38, 0.2);
+}
+
+.celebration {
+  text-align: center;
+  padding: 1rem;
+  background: linear-gradient(120deg, rgba(228, 30, 38, 0.08), rgba(228, 30, 38, 0.02));
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(228, 30, 38, 0.35);
+}
+
+.celebration::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.9) 1px, transparent 1px),
+    radial-gradient(circle, rgba(228, 30, 38, 0.25) 1px, transparent 1px);
+  background-size: 120px 120px, 160px 160px;
+  opacity: 0.6;
+  animation: confetti 12s linear infinite;
+}
+
+body.reduced-motion .celebration::after {
+  animation: none;
+  opacity: 0.35;
+}
+
+@keyframes confetti {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 0 480px, 0 320px;
+  }
+}
+
+.hint {
+  color: #3f3f3f;
 }
 
 .guestbook {

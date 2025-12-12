@@ -142,37 +142,131 @@
 
       <section class="section" id="games">
         <div class="container">
-          <h2 class="section-title">Mini-games lounge</h2>
-          <p class="section-subtitle">
-            Quick rounds of festive fun while the cocoa cools.
-          </p>
-          <div class="games-grid">
-            <article class="game-card glow-accent">
-              <span class="badge">New</span>
-              <h3>Snowball Shuffle</h3>
-              <p>Match the falling snowballs before they pile up too high.</p>
-              <a class="btn secondary" href="#">Launch</a>
-            </article>
-            <article class="game-card glow-accent">
-              <span class="badge">Co-op</span>
-              <h3>Gift Wrap Relay</h3>
-              <p>
-                Race a friend to wrap gifts with perfect corners and glossy
-                ribbons.
+          <div class="games-header">
+            <div>
+              <h2 class="section-title">Mini-games lounge</h2>
+              <p class="section-subtitle">
+                Quick rounds of festive fun while the cocoa cools.
               </p>
-              <a class="btn secondary" href="#">Launch</a>
+            </div>
+            <label class="toggle" for="reduced-motion-toggle">
+              <input type="checkbox" id="reduced-motion-toggle" />
+              <span>Use reduced-motion mode</span>
+            </label>
+          </div>
+          <div class="games-grid" role="list">
+            <article class="game-card glow-accent" role="listitem">
+              <span class="badge">Arcade</span>
+              <h3>Snowball Toss</h3>
+              <p>Tap the moving targets, climb the score, and crank the cheer.</p>
+              <button class="btn secondary launch" data-target="snowball-modal">
+                Quick start
+              </button>
             </article>
-            <article class="game-card glow-accent">
-              <span class="badge">Chill</span>
-              <h3>Fireplace Lo-Fi</h3>
-              <p>
-                Compose a cozy beat with bells, crackles, and sleigh chimes.
-              </p>
-              <a class="btn secondary" href="#">Launch</a>
+            <article class="game-card glow-accent" role="listitem">
+              <span class="badge">Balance</span>
+              <h3>Ornament Stacker</h3>
+              <p>Land ornaments neatly before the stack tips over.</p>
+              <button class="btn secondary launch" data-target="ornament-modal">
+                Quick start
+              </button>
+            </article>
+            <article class="game-card glow-accent" role="listitem">
+              <span class="badge">Memory</span>
+              <h3>Gift Matcher</h3>
+              <p>Flip festive pairs, race the clock, and celebrate every match.</p>
+              <button class="btn secondary launch" data-target="matcher-modal">
+                Quick start
+              </button>
             </article>
           </div>
         </div>
       </section>
+
+      <div class="modal" id="snowball-modal" role="dialog" aria-modal="true" aria-labelledby="snowball-title" hidden>
+        <div class="modal-panel frosted-panel">
+          <div class="modal-header">
+            <div>
+              <p class="badge">Arcade</p>
+              <h3 id="snowball-title">Snowball Toss</h3>
+              <p class="section-subtitle">Tap or click moving targets to rack up points.</p>
+            </div>
+            <button class="btn tertiary close" type="button" data-target="snowball-modal" aria-label="Close Snowball Toss">×</button>
+          </div>
+          <div class="game-shell">
+            <div class="game-toolbar">
+              <div class="scoreboard" aria-live="polite">
+                <span>Score: <strong id="snowball-score">0</strong></span>
+                <span>Streak: <strong id="snowball-streak">0</strong></span>
+              </div>
+              <div class="controls">
+                <label class="toggle" for="snowball-sfx">
+                  <input type="checkbox" id="snowball-sfx" checked />
+                  <span>Playful SFX</span>
+                </label>
+                <button class="btn" id="snowball-start" type="button">Start tossing</button>
+              </div>
+            </div>
+            <canvas id="snowball-canvas" class="game-canvas" width="640" height="360" aria-label="Snowball Toss playfield"></canvas>
+            <p class="hint">Targets speed up as you score. Hit streaks to get bonus points.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal" id="ornament-modal" role="dialog" aria-modal="true" aria-labelledby="ornament-title" hidden>
+        <div class="modal-panel frosted-panel">
+          <div class="modal-header">
+            <div>
+              <p class="badge">Balance</p>
+              <h3 id="ornament-title">Ornament Stacker</h3>
+              <p class="section-subtitle">Catch and steady ornaments before the stack wobbles.</p>
+            </div>
+            <button class="btn tertiary close" type="button" data-target="ornament-modal" aria-label="Close Ornament Stacker">×</button>
+          </div>
+          <div class="game-shell">
+            <div class="game-toolbar">
+              <div class="scoreboard" aria-live="polite">
+                <span>Stacked: <strong id="ornament-count">0</strong>/10</span>
+                <span>Status: <strong id="ornament-status">Ready</strong></span>
+              </div>
+              <div class="controls">
+                <button class="btn" id="ornament-reset" type="button">Reset stack</button>
+              </div>
+            </div>
+            <canvas id="ornament-canvas" class="game-canvas" width="640" height="360" aria-label="Ornament stack playfield"></canvas>
+            <p class="hint">Press space or tap the canvas to drop an ornament. Keep the tower upright to win.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal" id="matcher-modal" role="dialog" aria-modal="true" aria-labelledby="matcher-title" hidden>
+        <div class="modal-panel frosted-panel">
+          <div class="modal-header">
+            <div>
+              <p class="badge">Memory</p>
+              <h3 id="matcher-title">Gift Matcher</h3>
+              <p class="section-subtitle">Flip pairs, count your moves, and beat the clock.</p>
+            </div>
+            <button class="btn tertiary close" type="button" data-target="matcher-modal" aria-label="Close Gift Matcher">×</button>
+          </div>
+          <div class="game-shell matcher-shell">
+            <div class="game-toolbar">
+              <div class="scoreboard" aria-live="polite">
+                <span>Moves: <strong id="matcher-moves">0</strong></span>
+                <span>Time: <strong id="matcher-time">0s</strong></span>
+              </div>
+              <div class="controls">
+                <button class="btn" id="matcher-reset" type="button">Shuffle</button>
+              </div>
+            </div>
+            <div class="matcher-grid" id="matcher-grid" role="grid" aria-label="Gift Matcher board"></div>
+            <div class="celebration" id="matcher-celebrate" aria-live="polite" hidden>
+              <p class="card-title">All matched! 🎉</p>
+              <p class="hint">Snowfall of confetti incoming.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <section class="section" id="guestbook">
         <div class="container">
@@ -439,7 +533,7 @@
       const layers = Array.from(scene?.querySelectorAll(".layer") || []);
 
       function applyParallax() {
-        if (!scene || prefersReducedMotion.matches) return;
+        if (!scene || prefersReducedMotion.matches || body.classList.contains("reduced-motion")) return;
 
         const rect = scene.getBoundingClientRect();
         const centerY = rect.top + rect.height / 2;
@@ -470,7 +564,12 @@
       }
 
       function initSnowCanvas() {
-        if (!snowCanvas || prefersReducedMotion.matches || !supportsWebGL()) {
+        if (
+          !snowCanvas ||
+          prefersReducedMotion.matches ||
+          body.classList.contains("reduced-motion") ||
+          !supportsWebGL()
+        ) {
           snowCanvas?.setAttribute("hidden", "true");
           snowFallback?.removeAttribute("hidden");
           return initFallbackSnow();
@@ -490,6 +589,9 @@
         }
 
         function draw() {
+          if (prefersReducedMotion.matches || body.classList.contains("reduced-motion")) {
+            return;
+          }
           ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
           ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
           flakes.forEach((flake) => {
@@ -524,7 +626,7 @@
       function initBottle() {
         const bottle = document.querySelector(".bottle-3d");
         if (!bottle) return;
-        bottle.classList.toggle("reduced", prefersReducedMotion.matches);
+        bottle.classList.toggle("reduced", prefersReducedMotion.matches || body.classList.contains("reduced-motion"));
       }
 
       window.addEventListener("scroll", () => {
@@ -544,6 +646,429 @@
       initBottle();
       initSnowCanvas();
       requestAnimationFrame(applyParallax);
+
+      // Mini-game hub logic
+      const body = document.body;
+      const reducedMotionToggle = document.getElementById("reduced-motion-toggle");
+      const prefersMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const launchButtons = Array.from(document.querySelectorAll(".launch"));
+      const closeButtons = Array.from(document.querySelectorAll(".modal .close"));
+
+      const setReducedMotion = (value) => {
+        if (value) body.classList.add("reduced-motion");
+        else body.classList.remove("reduced-motion");
+      };
+
+      setReducedMotion(prefersMotionQuery.matches);
+      if (reducedMotionToggle) {
+        reducedMotionToggle.checked = prefersMotionQuery.matches;
+        reducedMotionToggle.addEventListener("change", (event) => {
+          setReducedMotion(event.target.checked);
+        });
+      }
+
+      prefersMotionQuery.addEventListener("change", (event) => {
+        if (reducedMotionToggle) reducedMotionToggle.checked = event.matches;
+        setReducedMotion(event.matches);
+      });
+
+      const openModal = (id) => {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.hidden = false;
+        const focusable = modal.querySelector("button, [tabindex='0']");
+        focusable?.focus({ preventScroll: false });
+        if (id === "snowball-modal") snowballGame.reset();
+        if (id === "ornament-modal") ornamentGame.reset();
+        if (id === "matcher-modal") giftMatcher.reset();
+      };
+
+      const closeModal = (id) => {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.hidden = true;
+        if (id === "snowball-modal") snowballGame.stop();
+        if (id === "ornament-modal") ornamentGame.stop();
+        if (id === "matcher-modal" && giftMatcher?.timer) {
+          clearInterval(giftMatcher.timer);
+        }
+      };
+
+      launchButtons.forEach((button) => {
+        button.addEventListener("click", () => openModal(button.dataset.target));
+        button.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") openModal(button.dataset.target);
+        });
+      });
+
+      closeButtons.forEach((button) => {
+        button.addEventListener("click", () => closeModal(button.dataset.target));
+      });
+
+      document.querySelectorAll(".modal").forEach((modal) => {
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) closeModal(modal.id);
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          document
+            .querySelectorAll(".modal:not([hidden])")
+            .forEach((modal) => closeModal(modal.id));
+        }
+      });
+
+      // Snowball Toss
+      const snowballCanvas = document.getElementById("snowball-canvas");
+      const snowballCtx = snowballCanvas?.getContext("2d");
+      const snowballScoreEl = document.getElementById("snowball-score");
+      const snowballStreakEl = document.getElementById("snowball-streak");
+      const snowballStart = document.getElementById("snowball-start");
+      const snowballSfx = document.getElementById("snowball-sfx");
+
+      const snowballGame = {
+        running: false,
+        score: 0,
+        streak: 0,
+        targets: [],
+        audio: window.AudioContext ? new AudioContext() : null,
+        reset() {
+          this.score = 0;
+          this.streak = 0;
+          this.targets = Array.from({ length: 6 }, () => this.spawnTarget());
+          this.running = true;
+          this.loop();
+          this.render();
+          snowballScoreEl.textContent = this.score;
+          snowballStreakEl.textContent = this.streak;
+        },
+        stop() {
+          this.running = false;
+        },
+        spawnTarget() {
+          const size = Math.random() * 12 + 18;
+          return {
+            x: Math.random() * snowballCanvas.width,
+            y: Math.random() * snowballCanvas.height,
+            r: size,
+            vx: (Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1),
+            vy: (Math.random() * 2 + 1) * (Math.random() > 0.5 ? 1 : -1),
+            hue: Math.random() * 40 + 340,
+          };
+        },
+        loop() {
+          if (!this.running) return;
+          this.update();
+          this.render();
+          requestAnimationFrame(() => this.loop());
+        },
+        update() {
+          const speedBoost = 1 + this.score * 0.02;
+          this.targets.forEach((t) => {
+            t.x += t.vx * speedBoost;
+            t.y += t.vy * speedBoost;
+            if (t.x - t.r < 0 || t.x + t.r > snowballCanvas.width) t.vx *= -1;
+            if (t.y - t.r < 0 || t.y + t.r > snowballCanvas.height) t.vy *= -1;
+          });
+        },
+        render() {
+          if (!snowballCtx) return;
+          snowballCtx.clearRect(0, 0, snowballCanvas.width, snowballCanvas.height);
+          this.targets.forEach((t) => {
+            const gradient = snowballCtx.createRadialGradient(
+              t.x - t.r * 0.3,
+              t.y - t.r * 0.3,
+              6,
+              t.x,
+              t.y,
+              t.r
+            );
+            gradient.addColorStop(0, `hsla(${t.hue}, 90%, 80%, 0.95)`);
+            gradient.addColorStop(1, `hsla(${t.hue}, 80%, 60%, 0.75)`);
+            snowballCtx.fillStyle = gradient;
+            snowballCtx.beginPath();
+            snowballCtx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+            snowballCtx.fill();
+            snowballCtx.strokeStyle = "rgba(255,255,255,0.8)";
+            snowballCtx.lineWidth = 2;
+            snowballCtx.stroke();
+          });
+        },
+        hit(clientX, clientY) {
+          const rect = snowballCanvas.getBoundingClientRect();
+          const scaleX = snowballCanvas.width / rect.width;
+          const scaleY = snowballCanvas.height / rect.height;
+          const x = (clientX - rect.left) * scaleX;
+          const y = (clientY - rect.top) * scaleY;
+          let hitSomething = false;
+          this.targets = this.targets.map((t) => {
+            const dist = Math.hypot(t.x - x, t.y - y);
+            if (dist <= t.r) {
+              hitSomething = true;
+              const bonus = Math.max(1, Math.floor(this.streak / 3));
+              this.score += 10 + bonus;
+              this.streak += 1;
+              snowballScoreEl.textContent = this.score;
+              snowballStreakEl.textContent = this.streak;
+              this.playPop();
+              return this.spawnTarget();
+            }
+            return t;
+          });
+          if (!hitSomething) {
+            this.streak = 0;
+            snowballStreakEl.textContent = this.streak;
+          }
+        },
+        playPop() {
+          if (!snowballSfx?.checked || body.classList.contains("reduced-motion")) return;
+          if (!this.audio) return;
+          if (this.audio.state === "suspended") this.audio.resume();
+          const now = this.audio.currentTime;
+          const osc = this.audio.createOscillator();
+          const gain = this.audio.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+          osc.connect(gain);
+          gain.connect(this.audio.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        },
+      };
+
+      snowballCanvas?.addEventListener("pointerdown", (event) => snowballGame.hit(event.clientX, event.clientY));
+      snowballStart?.addEventListener("click", () => snowballGame.reset());
+
+      // Ornament Stacker
+      const ornamentCanvas = document.getElementById("ornament-canvas");
+      const ornamentCtx = ornamentCanvas?.getContext("2d");
+      const ornamentCountEl = document.getElementById("ornament-count");
+      const ornamentStatusEl = document.getElementById("ornament-status");
+      const ornamentReset = document.getElementById("ornament-reset");
+
+      const ornamentGame = {
+        running: false,
+        ornaments: [],
+        active: null,
+        dropper: { x: 0, direction: 1 },
+        targetCount: 10,
+        gravity: 0.4,
+        reset() {
+          this.ornaments = [];
+          this.running = true;
+          this.active = null;
+          this.dropper.x = ornamentCanvas.width / 2;
+          ornamentStatusEl.textContent = "Ready";
+          ornamentCountEl.textContent = "0";
+          this.loop();
+        },
+        stop() {
+          this.running = false;
+        },
+        loop() {
+          if (!this.running) return;
+          this.update();
+          this.render();
+          requestAnimationFrame(() => this.loop());
+        },
+        update() {
+          const swingSpeed = body.classList.contains("reduced-motion") ? 0.8 : 1.4;
+          this.dropper.x += this.dropper.direction * swingSpeed;
+          if (this.dropper.x < 30 || this.dropper.x > ornamentCanvas.width - 30) {
+            this.dropper.direction *= -1;
+          }
+
+          if (this.active) {
+            this.active.vy += this.gravity;
+            this.active.y += this.active.vy;
+            const landingY = ornamentCanvas.height - this.active.r - 12;
+            const topPiece = this.ornaments[this.ornaments.length - 1];
+            const targetY = topPiece ? topPiece.y - topPiece.r - this.active.r : landingY;
+            if (this.active.y >= targetY) {
+              this.active.y = targetY;
+              this.ornaments.push(this.active);
+              ornamentCountEl.textContent = this.ornaments.length;
+              this.active = null;
+              this.checkOutcome();
+            }
+          }
+        },
+        render() {
+          if (!ornamentCtx) return;
+          ornamentCtx.clearRect(0, 0, ornamentCanvas.width, ornamentCanvas.height);
+          ornamentCtx.fillStyle = "#f5f5ff";
+          ornamentCtx.fillRect(0, ornamentCanvas.height - 12, ornamentCanvas.width, 16);
+          this.ornaments.forEach((o, index) => this.drawOrnament(o, index));
+          if (this.active) this.drawOrnament(this.active, this.ornaments.length);
+          this.drawDropper();
+        },
+        drawDropper() {
+          ornamentCtx.fillStyle = "rgba(228, 30, 38, 0.35)";
+          ornamentCtx.fillRect(this.dropper.x - 2, 10, 4, 50);
+          ornamentCtx.beginPath();
+          ornamentCtx.arc(this.dropper.x, 60, 8, 0, Math.PI * 2);
+          ornamentCtx.fill();
+        },
+        drawOrnament(o, index) {
+          const colors = ["#fdf1f1", "#ffe7d9", "#dff0ff", "#fff9d6"];
+          ornamentCtx.beginPath();
+          ornamentCtx.fillStyle = colors[index % colors.length];
+          ornamentCtx.strokeStyle = "rgba(0,0,0,0.08)";
+          ornamentCtx.lineWidth = 2;
+          ornamentCtx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+          ornamentCtx.fill();
+          ornamentCtx.stroke();
+          ornamentCtx.fillStyle = "rgba(228, 30, 38, 0.65)";
+          ornamentCtx.fillRect(o.x - 6, o.y - o.r - 8, 12, 10);
+        },
+        drop() {
+          if (!this.running || this.active) return;
+          const radius = Math.random() * 6 + 16;
+          this.active = {
+            x: this.dropper.x,
+            y: 70,
+            r: radius,
+            vy: 0,
+          };
+        },
+        checkOutcome() {
+          if (this.ornaments.length >= this.targetCount) {
+            ornamentStatusEl.textContent = "Win!";
+            this.running = false;
+            return;
+          }
+          const wobble = this.computeLean();
+          if (Math.abs(wobble) > ornamentCanvas.width * 0.22) {
+            ornamentStatusEl.textContent = "Tipped over";
+            this.running = false;
+          } else {
+            ornamentStatusEl.textContent = "Stacking";
+          }
+        },
+        computeLean() {
+          if (this.ornaments.length === 0) return 0;
+          const base = this.ornaments[0].x;
+          const top = this.ornaments[this.ornaments.length - 1].x;
+          return top - base;
+        },
+      };
+
+      ornamentCanvas?.addEventListener("click", () => ornamentGame.drop());
+      document.addEventListener("keydown", (event) => {
+        if (!document.getElementById("ornament-modal")?.hidden && event.code === "Space") {
+          event.preventDefault();
+          ornamentGame.drop();
+        }
+      });
+      ornamentReset?.addEventListener("click", () => ornamentGame.reset());
+
+      // Gift Matcher
+      const matcherGrid = document.getElementById("matcher-grid");
+      const matcherMoves = document.getElementById("matcher-moves");
+      const matcherTime = document.getElementById("matcher-time");
+      const matcherReset = document.getElementById("matcher-reset");
+      const matcherCelebrate = document.getElementById("matcher-celebrate");
+
+      const matcherIcons = [
+        "🎁",
+        "🧣",
+        "⛄",
+        "🧤",
+        "🎄",
+        "⭐",
+        "🍪",
+        "☕",
+      ];
+
+      const giftMatcher = {
+        cards: [],
+        first: null,
+        moves: 0,
+        timer: null,
+        timeElapsed: 0,
+        reset() {
+          this.cards = this.shuffle([...matcherIcons, ...matcherIcons]);
+          this.first = null;
+          this.moves = 0;
+          this.timeElapsed = 0;
+          clearInterval(this.timer);
+          matcherGrid.innerHTML = "";
+          matcherCelebrate.hidden = true;
+          matcherMoves.textContent = "0";
+          matcherTime.textContent = "0s";
+          this.render();
+        },
+        startTimer() {
+          clearInterval(this.timer);
+          this.timer = setInterval(() => {
+            this.timeElapsed += 1;
+            matcherTime.textContent = `${this.timeElapsed}s`;
+          }, 1000);
+        },
+        shuffle(arr) {
+          for (let i = arr.length - 1; i > 0; i -= 1) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        },
+        render() {
+          this.cards.forEach((icon, index) => {
+            const tile = document.createElement("button");
+            tile.className = "card-tile";
+            tile.setAttribute("role", "gridcell");
+            tile.setAttribute("aria-label", "Gift card");
+            tile.innerHTML = `
+              <span class="face back" aria-hidden="true">🎀</span>
+              <span class="face front" aria-hidden="true">${icon}</span>
+            `;
+            tile.addEventListener("click", () => this.flip(tile, icon));
+            matcherGrid.appendChild(tile);
+          });
+        },
+        flip(tile, icon) {
+          if (tile.classList.contains("matched") || tile.classList.contains("revealed")) return;
+          tile.classList.add("revealed");
+          if (!this.first) {
+            this.first = { tile, icon };
+            if (!this.timeElapsed) this.startTimer();
+            return;
+          }
+          this.moves += 1;
+          matcherMoves.textContent = this.moves;
+          const { tile: firstTile, icon: firstIcon } = this.first;
+          if (firstIcon === icon) {
+            tile.classList.add("matched");
+            firstTile.classList.add("matched");
+            this.first = null;
+            this.checkWin();
+          } else {
+            setTimeout(() => {
+              tile.classList.remove("revealed");
+              firstTile.classList.remove("revealed");
+              this.first = null;
+            }, body.classList.contains("reduced-motion") ? 200 : 600);
+          }
+        },
+        checkWin() {
+          const allMatched = matcherGrid.querySelectorAll(".matched").length === this.cards.length;
+          if (allMatched) {
+            clearInterval(this.timer);
+            matcherCelebrate.hidden = false;
+            if (body.classList.contains("reduced-motion")) {
+              matcherCelebrate.style.setProperty("animation", "none");
+            }
+          }
+        },
+      };
+
+      matcherReset?.addEventListener("click", () => giftMatcher.reset());
+      giftMatcher.reset();
     </script>
   </body>
 </html>
