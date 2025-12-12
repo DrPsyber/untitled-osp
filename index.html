@@ -9,6 +9,28 @@
   <body>
     <a class="skip-link" href="#greetings">Skip to content</a>
     <header class="hero">
+      <div class="parallax-scene" aria-hidden="true">
+        <div class="sky layer" data-depth="0.1"></div>
+        <div class="stars layer" data-depth="0.12"></div>
+        <div class="hills layer" data-depth="0.2"></div>
+        <div class="ribbon layer" data-depth="0.35"></div>
+        <div class="foreground layer" data-depth="0.5"></div>
+        <canvas id="snow-canvas" class="snow layer" data-depth="0.1"></canvas>
+        <div class="snow-fallback" hidden>
+          <div class="flake"></div>
+          <div class="flake"></div>
+          <div class="flake"></div>
+          <div class="flake"></div>
+          <div class="flake"></div>
+        </div>
+        <div class="bottle-3d" role="presentation" aria-hidden="true">
+          <div class="bottle-body">
+            <div class="bottle-label">Coca-Cola</div>
+            <div class="bottle-cap"></div>
+          </div>
+        </div>
+      </div>
+
       <div class="container content">
         <p class="badge">Holiday lounge</p>
         <h1>Season's greetings</h1>
@@ -409,6 +431,119 @@
         updateSlides();
         if (autoplay) restartAutoplay();
       })();
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      );
+
+      const scene = document.querySelector(".parallax-scene");
+      const layers = Array.from(scene?.querySelectorAll(".layer") || []);
+
+      function applyParallax() {
+        if (!scene || prefersReducedMotion.matches) return;
+
+        const rect = scene.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const scrollY = window.innerHeight / 2 - centerY;
+
+        layers.forEach((layer) => {
+          const depth = Number(layer.dataset.depth || 0);
+          const translateY = scrollY * depth * 0.35;
+          layer.style.transform = `translate3d(0, ${translateY}px, 0)`;
+        });
+
+        requestAnimationFrame(applyParallax);
+      }
+
+      const snowCanvas = document.getElementById("snow-canvas");
+      const snowFallback = document.querySelector(".snow-fallback");
+
+      function supportsWebGL() {
+        try {
+          const canvas = document.createElement("canvas");
+          return !!(
+            window.WebGLRenderingContext &&
+            (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+          );
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function initSnowCanvas() {
+        if (!snowCanvas || prefersReducedMotion.matches || !supportsWebGL()) {
+          snowCanvas?.setAttribute("hidden", "true");
+          snowFallback?.removeAttribute("hidden");
+          return initFallbackSnow();
+        }
+
+        const ctx = snowCanvas.getContext("2d");
+        const flakes = Array.from({ length: 180 }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          r: Math.random() * 3 + 1,
+          s: Math.random() * 0.6 + 0.4,
+        }));
+
+        function resize() {
+          snowCanvas.width = window.innerWidth;
+          snowCanvas.height = scene.offsetHeight + 200;
+        }
+
+        function draw() {
+          ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          flakes.forEach((flake) => {
+            ctx.beginPath();
+            ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            flake.y += flake.s * 3;
+            flake.x += Math.sin(flake.y * 0.01) * 0.6;
+
+            if (flake.y > snowCanvas.height) {
+              flake.y = -flake.r;
+              flake.x = Math.random() * snowCanvas.width;
+            }
+          });
+
+          requestAnimationFrame(draw);
+        }
+
+        window.addEventListener("resize", resize);
+        resize();
+        draw();
+      }
+
+      function initFallbackSnow() {
+        if (!snowFallback) return;
+        snowFallback.querySelectorAll(".flake").forEach((flake, index) => {
+          flake.style.setProperty("--delay", `${index * 1.2}s`);
+        });
+      }
+
+      function initBottle() {
+        const bottle = document.querySelector(".bottle-3d");
+        if (!bottle) return;
+        bottle.classList.toggle("reduced", prefersReducedMotion.matches);
+      }
+
+      window.addEventListener("scroll", () => {
+        if (!prefersReducedMotion.matches) {
+          requestAnimationFrame(applyParallax);
+        }
+      });
+
+      prefersReducedMotion.addEventListener("change", () => {
+        if (prefersReducedMotion.matches) {
+          layers.forEach((layer) => (layer.style.transform = ""));
+        }
+        initBottle();
+        initSnowCanvas();
+      });
+
+      initBottle();
+      initSnowCanvas();
+      requestAnimationFrame(applyParallax);
     </script>
   </body>
 </html>
