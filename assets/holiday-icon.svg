@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Holiday bottle icon</title>
+  <desc id="desc">Festive red bottle silhouette with snow sparkles on a circular badge.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff6f7a" />
+      <stop offset="50%" stop-color="#e41e26" />
+      <stop offset="100%" stop-color="#8f0f16" />
+    </linearGradient>
+    <linearGradient id="shine" x1="35%" y1="0%" x2="65%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
+      <stop offset="70%" stop-color="rgba(255,255,255,0.05)" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="238" fill="url(#bg)" />
+  <circle cx="256" cy="256" r="226" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="14" />
+  <path
+    fill="#fff"
+    fill-opacity="0.9"
+    d="M244 96c0-14 7-20 24-20s24 6 24 20v12c0 7 3 12 10 15l12 5c12 5 18 16 18 30v39c0 7-2 10-7 12l-7 3v160c0 47-25 79-77 79s-77-32-77-79V200l-7-3c-5-2-7-5-7-12v-39c0-14 6-25 18-30l12-5c7-3 10-8 10-15V96Z"
+  />
+  <path
+    fill="url(#shine)"
+    d="M262 110c0-6 5-10 11-10s11 4 11 10v256c0 29-18 49-44 54 22-10 22-36 22-53Z"
+  />
+  <g fill="#fff" fill-opacity="0.85">
+    <circle cx="154" cy="178" r="10" />
+    <circle cx="180" cy="140" r="8" />
+    <circle cx="352" cy="164" r="7" />
+    <circle cx="340" cy="126" r="5" />
+    <circle cx="368" cy="210" r="6" />
+    <circle cx="190" cy="226" r="6" />
+  </g>
+</svg>

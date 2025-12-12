@@ -3,7 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Cozy crafts, games, and greetings to celebrate the season with friends and family."
+    />
     <title>Holiday Hub</title>
+    <link rel="icon" type="image/svg+xml" href="assets/holiday-icon.svg" />
+    <link rel="mask-icon" href="assets/holiday-icon.svg" color="#d21036" />
+    <link rel="apple-touch-icon" href="assets/holiday-icon.svg" />
+    <link rel="manifest" href="assets/holiday-manifest.webmanifest" />
+    <meta name="theme-color" content="#d21036" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Holiday Hub" />
+    <meta
+      property="og:description"
+      content="Cozy crafts, games, and greetings to celebrate the season with friends and family."
+    />
+    <meta property="og:image" content="assets/hero-static.svg" />
+    <meta property="og:url" content="https://holiday-hub.example" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Holiday Hub" />
+    <meta
+      name="twitter:description"
+      content="Cozy crafts, games, and greetings to celebrate the season with friends and family."
+    />
+    <meta name="twitter:image" content="assets/hero-static.svg" />
     <link rel="stylesheet" href="styles/theme.css" />
   </head>
   <body>
@@ -396,10 +420,32 @@
           Spread this experience with friends.
         </p>
         <ul class="share-buttons" aria-label="Share this page">
-          <li><a href="#">Share on X</a></li>
-          <li><a href="#">Share on Instagram</a></li>
-          <li><a href="#">Copy invite link</a></li>
+          <li>
+            <button class="share-action" type="button" id="native-share">
+              <span aria-hidden="true">🎉</span>
+              <span>Share this magic</span>
+            </button>
+          </li>
+          <li>
+            <button class="share-action ghost" type="button" id="copy-link">
+              <span aria-hidden="true">🔗</span>
+              <span>Copy invite link</span>
+            </button>
+          </li>
+          <li>
+            <a
+              class="share-action outline"
+              id="share-x"
+              href="https://x.com/intent/tweet"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <span aria-hidden="true">❄️</span>
+              <span>Post on X</span>
+            </a>
+          </li>
         </ul>
+        <p class="share-feedback" id="share-feedback" role="status" aria-live="polite"></p>
       </div>
     </footer>
 
@@ -1505,6 +1551,67 @@
 
       matcherReset?.addEventListener("click", () => giftMatcher.reset());
       giftMatcher.reset();
+
+      // Sharing helpers
+      const shareDetails = {
+        title: "Holiday Hub",
+        text: "Join me in this cozy holiday lounge full of games and cheers!",
+      };
+      const shareUrl = window.location.href.split("#")[0];
+      const shareXLink = document.getElementById("share-x");
+      const copyLinkButton = document.getElementById("copy-link");
+      const nativeShareButton = document.getElementById("native-share");
+      const shareFeedback = document.getElementById("share-feedback");
+
+      const updateShareFeedback = (message, tone = "success") => {
+        if (!shareFeedback) return;
+        shareFeedback.textContent = message;
+        shareFeedback.dataset.tone = tone;
+      };
+
+      if (shareXLink) {
+        const shareText = encodeURIComponent(`${shareDetails.text} ${shareUrl}`);
+        shareXLink.href = `https://x.com/intent/tweet?text=${shareText}`;
+      }
+
+      const copyShareLink = async () => {
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(shareUrl);
+          } else {
+            const helper = document.createElement("textarea");
+            helper.value = shareUrl;
+            helper.setAttribute("aria-hidden", "true");
+            helper.style.position = "fixed";
+            helper.style.opacity = "0";
+            document.body.appendChild(helper);
+            helper.select();
+            document.execCommand("copy");
+            helper.remove();
+          }
+          updateShareFeedback("Link copied to your clipboard!", "success");
+        } catch (error) {
+          updateShareFeedback("Unable to copy right now. Please try again.", "error");
+        }
+      };
+
+      nativeShareButton?.addEventListener("click", async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({ ...shareDetails, url: shareUrl });
+            updateShareFeedback("Shared—thanks for spreading the cheer!", "success");
+          } catch (error) {
+            if (error?.name !== "AbortError") {
+              updateShareFeedback("Sharing didn't go through. Try copying the link instead.", "error");
+            }
+          }
+        } else {
+          await copyShareLink();
+          updateShareFeedback("Sharing isn't supported here, so we copied the link instead.", "info");
+        }
+      });
+
+      copyLinkButton?.addEventListener("click", copyShareLink);
     </script>
   </body>
 </html>

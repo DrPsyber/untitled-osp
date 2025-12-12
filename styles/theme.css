@@ -1075,28 +1075,81 @@ footer {
 }
 
 footer .share-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-footer .share-buttons a {
-  background: rgba(255, 255, 255, 0.12);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  color: var(--snow-white);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: background 0.2s ease;
+.share-action {
+  width: 100%;
   display: inline-flex;
-  gap: 0.35rem;
   align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: radial-gradient(circle at 20% 20%, #ff9dcf 0, rgba(255, 255, 255, 0.12) 45%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  color: var(--snow-white);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-footer .share-buttons a:hover {
-  background: rgba(255, 255, 255, 0.2);
+.share-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.2), transparent 40%, transparent 60%, rgba(255, 255, 255, 0.2));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.share-action:hover,
+.share-action:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.share-action:hover::after,
+.share-action:focus-visible::after {
+  opacity: 1;
+}
+
+.share-action.ghost {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.share-action.outline {
+  background: transparent;
+}
+
+.share-action span:first-child {
+  font-size: 1.15rem;
+}
+
+.share-feedback {
+  margin-top: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  min-height: 1.2rem;
+}
+
+.share-feedback[data-tone="error"] {
+  color: #ffd9e0;
+}
+
+.share-feedback[data-tone="info"] {
+  color: #ffe6ff;
 }
 
 /* Responsive adjustments */
