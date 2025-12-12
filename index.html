@@ -31,6 +31,15 @@
         </div>
       </div>
 
+      <picture class="hero-static-art" aria-hidden="true">
+        <img
+          src="assets/hero-static.svg"
+          loading="lazy"
+          decoding="async"
+          alt="Illustration of snowy hills, ribbon, and a winter bottle silhouette"
+        />
+      </picture>
+
       <div class="container content">
         <p class="badge">Holiday lounge</p>
         <h1>Season's greetings</h1>
@@ -41,6 +50,21 @@
         <div class="actions">
           <a class="btn glow-accent" href="#games">Play mini-games</a>
           <a class="btn secondary" href="#guestbook">Sign the guestbook</a>
+        </div>
+
+        <div class="preference-bar frosted-panel" aria-label="Experience settings">
+          <label class="toggle" for="reduced-motion-toggle">
+            <input type="checkbox" id="reduced-motion-toggle" />
+            <span>Use reduced-motion mode</span>
+          </label>
+          <label class="toggle" for="static-art-toggle">
+            <input type="checkbox" id="static-art-toggle" />
+            <span>Swap to static art</span>
+          </label>
+          <label class="toggle" for="mute-audio-toggle">
+            <input type="checkbox" id="mute-audio-toggle" />
+            <span>Mute audio and SFX</span>
+          </label>
         </div>
       </div>
     </header>
@@ -149,10 +173,9 @@
                 Quick rounds of festive fun while the cocoa cools.
               </p>
             </div>
-            <label class="toggle" for="reduced-motion-toggle">
-              <input type="checkbox" id="reduced-motion-toggle" />
-              <span>Use reduced-motion mode</span>
-            </label>
+            <p class="hint" id="games-preference-hint">
+              Toggle motion, static art, and audio in the hero settings above.
+            </p>
           </div>
           <div class="games-grid" role="list">
             <article class="game-card glow-accent" role="listitem">
@@ -207,7 +230,14 @@
                 <button class="btn" id="snowball-start" type="button">Start tossing</button>
               </div>
             </div>
-            <canvas id="snowball-canvas" class="game-canvas" width="640" height="360" aria-label="Snowball Toss playfield"></canvas>
+            <canvas
+              id="snowball-canvas"
+              class="game-canvas"
+              width="640"
+              height="360"
+              aria-label="Snowball Toss playfield"
+              tabindex="0"
+            ></canvas>
             <p class="hint">Targets speed up as you score. Hit streaks to get bonus points.</p>
           </div>
         </div>
@@ -233,7 +263,14 @@
                 <button class="btn" id="ornament-reset" type="button">Reset stack</button>
               </div>
             </div>
-            <canvas id="ornament-canvas" class="game-canvas" width="640" height="360" aria-label="Ornament stack playfield"></canvas>
+            <canvas
+              id="ornament-canvas"
+              class="game-canvas"
+              width="640"
+              height="360"
+              aria-label="Ornament stack playfield"
+              tabindex="0"
+            ></canvas>
             <p class="hint">Press space or tap the canvas to drop an ornament. Keep the tower upright to win.</p>
           </div>
         </div>
@@ -367,6 +404,8 @@
     </footer>
 
     <script>
+      const body = document.body;
+
       (() => {
         const track = document.querySelector('.carousel-track');
         const slides = Array.from(track?.children ?? []);
@@ -392,9 +431,14 @@
         let startX = 0;
         let prefersMotionReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
         let prefersDataReduced = window.matchMedia('(prefers-reduced-data: reduce)');
-        let prefersAudioReduced = window.matchMedia('(prefers-reduced-transparency: reduce)');
+        let prefersReducedTransparency = window.matchMedia(
+          '(prefers-reduced-transparency: reduce)'
+        );
         const isAudioRestricted = () =>
-          prefersMotionReduced.matches || prefersDataReduced.matches || prefersAudioReduced.matches;
+          prefersMotionReduced.matches ||
+          prefersDataReduced.matches ||
+          prefersReducedTransparency.matches ||
+          body.classList.contains('audio-muted');
 
         const audioContext = window.AudioContext ? new AudioContext() : null;
         const playChime = () => {
@@ -426,13 +470,16 @@
           const hints = [];
           if (prefersMotionReduced.matches) hints.push('autoplay paused for reduced-motion preference');
           if (prefersDataReduced.matches) hints.push('audio muted to respect reduced-data');
-          if (prefersAudioReduced.matches) hints.push('audio muted for reduced-transparency preference');
+          if (prefersReducedTransparency.matches)
+            hints.push('audio muted for reduced-transparency preference');
+          if (body.classList.contains('audio-muted')) hints.push('audio muted by preference');
           preferenceHint.textContent = hints.join(' · ');
         };
 
         if (isAudioRestricted()) {
           chimeToggle.checked = false;
           chimeToggle.disabled = true;
+          chimeToggle.dataset.locked = 'true';
         }
 
         if (prefersMotionReduced.matches) {
@@ -551,18 +598,28 @@
           if (prefersDataReduced.matches || isAudioRestricted()) {
             chimeToggle.checked = false;
             chimeToggle.disabled = true;
+            if (muteAudioToggle) {
+              muteAudioToggle.checked = true;
+              syncAudioToggles();
+            }
           } else {
             chimeToggle.disabled = false;
           }
           announcePreference();
         });
 
-        prefersAudioReduced.addEventListener('change', () => {
-          if (prefersAudioReduced.matches || isAudioRestricted()) {
+        prefersReducedTransparency.addEventListener('change', () => {
+          if (prefersReducedTransparency.matches || isAudioRestricted()) {
             chimeToggle.checked = false;
             chimeToggle.disabled = true;
+            chimeToggle.dataset.locked = 'true';
+            if (muteAudioToggle) {
+              muteAudioToggle.checked = true;
+              syncAudioToggles();
+            }
           } else {
             chimeToggle.disabled = false;
+            delete chimeToggle.dataset.locked;
           }
           announcePreference();
         });
@@ -573,12 +630,26 @@
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       );
+      const reducedMotionToggle = document.getElementById("reduced-motion-toggle");
+      const staticArtToggle = document.getElementById("static-art-toggle");
+      const muteAudioToggle = document.getElementById("mute-audio-toggle");
+      const snowballSfxToggle = document.getElementById("snowball-sfx");
+      const chimeToggleGlobal = document.getElementById("chime-toggle");
 
       const scene = document.querySelector(".parallax-scene");
+      const hero = document.querySelector("header.hero");
       const layers = Array.from(scene?.querySelectorAll(".layer") || []);
+      let heroEffectsLoaded = false;
+      let snowInitialized = false;
 
       function applyParallax() {
-        if (!scene || prefersReducedMotion.matches || body.classList.contains("reduced-motion")) return;
+        if (
+          !scene ||
+          prefersReducedMotion.matches ||
+          body.classList.contains("reduced-motion") ||
+          body.classList.contains("static-scene")
+        )
+          return;
 
         const rect = scene.getBoundingClientRect();
         const centerY = rect.top + rect.height / 2;
@@ -609,16 +680,20 @@
       }
 
       function initSnowCanvas() {
+        if (snowInitialized) return;
         if (
           !snowCanvas ||
           prefersReducedMotion.matches ||
           body.classList.contains("reduced-motion") ||
+          body.classList.contains("static-scene") ||
           !supportsWebGL()
         ) {
           snowCanvas?.setAttribute("hidden", "true");
           snowFallback?.removeAttribute("hidden");
           return initFallbackSnow();
         }
+
+        snowInitialized = true;
 
         const ctx = snowCanvas.getContext("2d");
         const flakes = Array.from({ length: 180 }, () => ({
@@ -634,7 +709,12 @@
         }
 
         function draw() {
-          if (prefersReducedMotion.matches || body.classList.contains("reduced-motion")) {
+          if (
+            prefersReducedMotion.matches ||
+            body.classList.contains("reduced-motion") ||
+            body.classList.contains("static-scene")
+          ) {
+            requestAnimationFrame(draw);
             return;
           }
           ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
@@ -668,54 +748,114 @@
         });
       }
 
+      const updateStaticScene = () => {
+        const preferStatic =
+          body.classList.contains("reduced-motion") ||
+          staticArtToggle?.checked ||
+          prefersReducedMotion.matches;
+        if (staticArtToggle) {
+          staticArtToggle.checked = preferStatic;
+        }
+        body.classList.toggle("static-scene", preferStatic);
+        if (preferStatic) {
+          snowCanvas?.setAttribute("hidden", "true");
+          snowFallback?.setAttribute("hidden", "true");
+          layers.forEach((layer) => (layer.style.transform = ""));
+        } else if (heroEffectsLoaded) {
+          snowFallback?.setAttribute("hidden", "true");
+          snowCanvas?.removeAttribute("hidden");
+        }
+      };
+
+      const syncAudioToggles = () => {
+        const muted = muteAudioToggle?.checked || false;
+        body.classList.toggle("audio-muted", Boolean(muted));
+        [chimeToggleGlobal, snowballSfxToggle].forEach((input) => {
+          if (!input) return;
+          if (muted) {
+            input.checked = false;
+            input.disabled = true;
+          } else if (!input.dataset.locked) {
+            input.disabled = false;
+          }
+        });
+      };
+
+      const setReducedMotion = (value) => {
+        body.classList.toggle("reduced-motion", value);
+        updateStaticScene();
+      };
+
+      const syncReducedMotionToggle = () => {
+        if (reducedMotionToggle) {
+          reducedMotionToggle.checked =
+            body.classList.contains("reduced-motion") || prefersReducedMotion.matches;
+        }
+      };
+
       function initBottle() {
         const bottle = document.querySelector(".bottle-3d");
         if (!bottle) return;
         bottle.classList.toggle("reduced", prefersReducedMotion.matches || body.classList.contains("reduced-motion"));
       }
 
+      const startHeroEffects = () => {
+        if (heroEffectsLoaded || body.classList.contains("static-scene")) return;
+        heroEffectsLoaded = true;
+        initBottle();
+        initSnowCanvas();
+        requestAnimationFrame(applyParallax);
+      };
+
+      if ("IntersectionObserver" in window && hero) {
+        const heroObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                startHeroEffects();
+                heroObserver.disconnect();
+              }
+            });
+          },
+          { threshold: 0.25 }
+        );
+        heroObserver.observe(hero);
+      } else {
+        startHeroEffects();
+      }
+
       window.addEventListener("scroll", () => {
-        if (!prefersReducedMotion.matches) {
+        if (!prefersReducedMotion.matches && !body.classList.contains("static-scene")) {
           requestAnimationFrame(applyParallax);
         }
       });
 
-      prefersReducedMotion.addEventListener("change", () => {
-        if (prefersReducedMotion.matches) {
-          layers.forEach((layer) => (layer.style.transform = ""));
-        }
-        initBottle();
-        initSnowCanvas();
+      prefersReducedMotion.addEventListener("change", (event) => {
+        setReducedMotion(event.matches);
+        syncReducedMotionToggle();
+        if (!event.matches) startHeroEffects();
       });
 
-      initBottle();
-      initSnowCanvas();
-      requestAnimationFrame(applyParallax);
+      reducedMotionToggle?.addEventListener("change", (event) => {
+        setReducedMotion(event.target.checked);
+        if (!event.target.checked) startHeroEffects();
+      });
+
+      staticArtToggle?.addEventListener("change", () => {
+        updateStaticScene();
+        if (!body.classList.contains("static-scene")) startHeroEffects();
+      });
+
+      muteAudioToggle?.addEventListener("change", syncAudioToggles);
+
+      setReducedMotion(prefersReducedMotion.matches);
+      syncReducedMotionToggle();
+      updateStaticScene();
+      syncAudioToggles();
 
       // Mini-game hub logic
-      const body = document.body;
-      const reducedMotionToggle = document.getElementById("reduced-motion-toggle");
-      const prefersMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
       const launchButtons = Array.from(document.querySelectorAll(".launch"));
       const closeButtons = Array.from(document.querySelectorAll(".modal .close"));
-
-      const setReducedMotion = (value) => {
-        if (value) body.classList.add("reduced-motion");
-        else body.classList.remove("reduced-motion");
-      };
-
-      setReducedMotion(prefersMotionQuery.matches);
-      if (reducedMotionToggle) {
-        reducedMotionToggle.checked = prefersMotionQuery.matches;
-        reducedMotionToggle.addEventListener("change", (event) => {
-          setReducedMotion(event.target.checked);
-        });
-      }
-
-      prefersMotionQuery.addEventListener("change", (event) => {
-        if (reducedMotionToggle) reducedMotionToggle.checked = event.matches;
-        setReducedMotion(event.matches);
-      });
 
       const openModal = (id) => {
         const modal = document.getElementById(id);
@@ -1094,7 +1234,12 @@
           }
         },
         playPop() {
-          if (!snowballSfx?.checked || body.classList.contains("reduced-motion")) return;
+          if (
+            !snowballSfx?.checked ||
+            body.classList.contains("reduced-motion") ||
+            body.classList.contains("audio-muted")
+          )
+            return;
           if (!this.audio) return;
           if (this.audio.state === "suspended") this.audio.resume();
           const now = this.audio.currentTime;
@@ -1115,6 +1260,13 @@
 
       snowballCanvas?.addEventListener("pointerdown", (event) => snowballGame.hit(event.clientX, event.clientY));
       snowballStart?.addEventListener("click", () => snowballGame.reset());
+      snowballCanvas?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          const rect = snowballCanvas.getBoundingClientRect();
+          snowballGame.hit(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+      });
 
       // Ornament Stacker
       const ornamentCanvas = document.getElementById("ornament-canvas");
@@ -1231,6 +1383,12 @@
       };
 
       ornamentCanvas?.addEventListener("click", () => ornamentGame.drop());
+      ornamentCanvas?.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          ornamentGame.drop();
+        }
+      });
       document.addEventListener("keydown", (event) => {
         if (!document.getElementById("ornament-modal")?.hidden && event.code === "Space") {
           event.preventDefault();
@@ -1295,6 +1453,7 @@
             tile.className = "card-tile";
             tile.setAttribute("role", "gridcell");
             tile.setAttribute("aria-label", "Gift card");
+            tile.setAttribute("aria-pressed", "false");
             tile.innerHTML = `
               <span class="face back" aria-hidden="true">🎀</span>
               <span class="face front" aria-hidden="true">${icon}</span>
@@ -1306,6 +1465,7 @@
         flip(tile, icon) {
           if (tile.classList.contains("matched") || tile.classList.contains("revealed")) return;
           tile.classList.add("revealed");
+          tile.setAttribute("aria-pressed", "true");
           if (!this.first) {
             this.first = { tile, icon };
             if (!this.timeElapsed) this.startTimer();
@@ -1317,12 +1477,16 @@
           if (firstIcon === icon) {
             tile.classList.add("matched");
             firstTile.classList.add("matched");
+            tile.setAttribute("aria-pressed", "true");
+            firstTile.setAttribute("aria-pressed", "true");
             this.first = null;
             this.checkWin();
           } else {
             setTimeout(() => {
               tile.classList.remove("revealed");
               firstTile.classList.remove("revealed");
+              tile.setAttribute("aria-pressed", "false");
+              firstTile.setAttribute("aria-pressed", "false");
               this.first = null;
             }, body.classList.contains("reduced-motion") ? 200 : 600);
           }
