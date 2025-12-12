@@ -189,6 +189,178 @@ header.hero {
   color: var(--snow-white);
 }
 
+.parallax-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  perspective: 1200px;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 35%),
+    linear-gradient(180deg, #8fd3ff 0%, #dff2ff 50%, #ffffff 100%);
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.35s ease-out;
+}
+
+.sky {
+  background: linear-gradient(180deg, #b7e3ff 0%, #f5fbff 50%, #ffffff 100%);
+}
+
+.stars {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.9) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+}
+
+.hills {
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 30%),
+    radial-gradient(120% 80% at 0% 100%, rgba(255, 255, 255, 0.95) 60%, transparent 60%),
+    radial-gradient(120% 80% at 30% 100%, rgba(240, 248, 255, 0.9) 60%, transparent 60%),
+    radial-gradient(120% 80% at 70% 100%, rgba(255, 255, 255, 0.95) 60%, transparent 60%),
+    radial-gradient(120% 80% at 100% 100%, rgba(243, 249, 255, 0.85) 60%, transparent 60%);
+  transform-origin: center;
+}
+
+.ribbon {
+  background: var(--gradient-ribbon);
+  height: 120px;
+  width: 120%;
+  position: absolute;
+  top: 40%;
+  left: -10%;
+  transform: rotate(-6deg);
+  box-shadow: 0 20px 40px rgba(228, 30, 38, 0.25);
+  border-radius: 18px;
+}
+
+.foreground {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, #ffffff 60%);
+  mask: radial-gradient(120% 80% at 50% 100%, black 60%, transparent 60%);
+}
+
+.snow {
+  pointer-events: none;
+}
+
+.snow-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.snow-fallback .flake {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+  animation: fall 8s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.snow-fallback .flake:nth-child(odd) {
+  width: 8px;
+  height: 8px;
+}
+
+.snow-fallback .flake:nth-child(1) {
+  left: 10%;
+}
+
+.snow-fallback .flake:nth-child(2) {
+  left: 30%;
+}
+
+.snow-fallback .flake:nth-child(3) {
+  left: 55%;
+}
+
+.snow-fallback .flake:nth-child(4) {
+  left: 75%;
+}
+
+.snow-fallback .flake:nth-child(5) {
+  left: 90%;
+}
+
+@keyframes fall {
+  0% {
+    transform: translate3d(-50%, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(150vw, 110vh, 0) rotate(360deg);
+    opacity: 0.4;
+  }
+}
+
+.bottle-3d {
+  position: absolute;
+  right: 4%;
+  bottom: 4%;
+  width: 140px;
+  height: 240px;
+  transform-style: preserve-3d;
+  animation: spin 12s linear infinite;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.25));
+  transform: translateZ(0);
+}
+
+.bottle-3d.reduced {
+  animation: none;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotateY(0deg) translateZ(0);
+  }
+  100% {
+    transform: rotateY(360deg) translateZ(0);
+  }
+}
+
+.bottle-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #2b0c0f 0%, #5e0f15 50%, #2b0c0f 100%);
+  border-radius: 40px 40px 50px 50px / 60px 60px 40px 40px;
+  overflow: hidden;
+  transform: translateZ(30px) rotateX(6deg);
+  border: 3px solid rgba(255, 255, 255, 0.12);
+}
+
+.bottle-label {
+  position: absolute;
+  inset: 45% 12% 22% 12%;
+  background: var(--gradient-ribbon);
+  color: #fff7f7;
+  font-family: var(--font-script);
+  font-size: 1.4rem;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35);
+}
+
+.bottle-cap {
+  position: absolute;
+  top: -4%;
+  left: 32%;
+  width: 36%;
+  height: 14%;
+  background: linear-gradient(180deg, #f9f9f9 0%, #d2d2d2 100%);
+  border-radius: 10px 10px 6px 6px;
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.18);
+}
+
 .hero::before {
   content: "";
   position: absolute;
@@ -204,18 +376,44 @@ header.hero {
 .hero::after {
   content: "";
   position: absolute;
-  inset: -10% -10%;
-  background: url("https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1600&q=80")
-    center/cover no-repeat fixed;
-  transform: scale(1.05);
-  z-index: 0;
-  opacity: 0.9;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 100%);
+  z-index: 3;
 }
 
 .hero .content {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   padding: 4rem 0;
+}
+
+.parallax-scene .layer:nth-child(1) {
+  z-index: 0;
+}
+
+.parallax-scene .layer:nth-child(2) {
+  z-index: 1;
+}
+
+.parallax-scene .layer:nth-child(3) {
+  z-index: 2;
+}
+
+.parallax-scene .layer:nth-child(4) {
+  z-index: 3;
+}
+
+.parallax-scene .layer:nth-child(5) {
+  z-index: 4;
+}
+
+.parallax-scene .layer:nth-child(6),
+.snow-fallback {
+  z-index: 5;
+}
+
+.parallax-scene .bottle-3d {
+  z-index: 6;
 }
 
 .hero h1 {
