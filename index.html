@@ -275,33 +275,78 @@
             Leave a note for the hosts or greet fellow guests.
           </p>
           <div class="guestbook">
-            <form class="frosted-panel">
-              <label for="name">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                placeholder="Your name"
-              />
-              <label for="message">Message</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="4"
-                placeholder="Share some holiday cheer"
-              ></textarea>
-              <button class="btn" type="submit">Send</button>
+            <form class="frosted-panel guestbook-form" id="guestbook-form" novalidate>
+              <div class="field">
+                <div class="label-row">
+                  <label for="name">Name</label>
+                  <span class="chip" aria-hidden="true">Required</span>
+                </div>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Your name"
+                  autocomplete="name"
+                  required
+                  aria-describedby="name-error"
+                />
+                <p class="field-error" id="name-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <div class="label-row">
+                  <label for="email">Email</label>
+                  <span class="chip subtle" aria-hidden="true">Optional</span>
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  aria-describedby="email-hint email-error"
+                />
+                <p class="field-hint" id="email-hint">
+                  We only use this to show your avatar letter.
+                </p>
+                <p class="field-error" id="email-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <div class="label-row">
+                  <label for="message">Message</label>
+                  <span class="chip subtle" aria-hidden="true">Share some joy</span>
+                </div>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  placeholder="Send a cozy note to the lounge"
+                  required
+                  aria-describedby="message-error"
+                ></textarea>
+                <p class="field-error" id="message-error" role="alert"></p>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn" type="submit">Send warm wishes</button>
+                <button class="btn tertiary" type="button" id="clear-guestbook">
+                  Clear entries
+                </button>
+              </div>
+              <p class="field-hint">Entries are saved to your device so you can revisit them.</p>
             </form>
-            <div class="frosted-panel">
-              <h3 class="card-title">Latest notes</h3>
-              <p>
-                <strong>Alex</strong>: Can't wait for the gingerbread showdown!
-              </p>
-              <p>
-                <strong>Rin</strong>: Saving a spot by the fire for everyone.
-              </p>
-              <p><strong>Lee</strong>: This guestbook is the coziest corner.</p>
+            <div class="frosted-panel guestbook-feed">
+              <div class="feed-header">
+                <h3 class="card-title">Latest notes</h3>
+                <p class="hint">Fresh greetings appear here with avatars.</p>
+              </div>
+              <ul class="entry-list" id="guestbook-list" aria-live="polite"></ul>
             </div>
+          </div>
+          <div class="toast" id="guestbook-toast" role="status" aria-live="polite" hidden>
+            <span class="toast-icon" aria-hidden="true">✨</span>
+            <span id="toast-message">Warm wishes sent!</span>
           </div>
         </div>
       </section>
@@ -718,6 +763,233 @@
             .forEach((modal) => closeModal(modal.id));
         }
       });
+
+      // Guestbook form & entries
+      const guestbookForm = document.getElementById("guestbook-form");
+      const guestbookList = document.getElementById("guestbook-list");
+      const clearGuestbook = document.getElementById("clear-guestbook");
+      const toast = document.getElementById("guestbook-toast");
+      const toastMessage = document.getElementById("toast-message");
+      const nameField = document.getElementById("name");
+      const emailField = document.getElementById("email");
+      const messageField = document.getElementById("message");
+      const nameError = document.getElementById("name-error");
+      const emailError = document.getElementById("email-error");
+      const messageError = document.getElementById("message-error");
+
+      const guestbookStorageKey = "holiday-guestbook";
+      const defaultEntries = [
+        {
+          name: "Alex",
+          email: "alex@northpole.com",
+          message: "Can't wait for the gingerbread showdown!",
+          createdAt: Date.now() - 1000 * 60 * 60 * 5,
+        },
+        {
+          name: "Rin",
+          email: "",
+          message: "Saving a spot by the fire for everyone.",
+          createdAt: Date.now() - 1000 * 60 * 60 * 2,
+        },
+        {
+          name: "Lee",
+          email: "lee@festive.fm",
+          message: "This guestbook is the coziest corner.",
+          createdAt: Date.now() - 1000 * 60 * 30,
+        },
+      ];
+
+      const storageAvailable = (() => {
+        try {
+          const key = "guestbook-check";
+          localStorage.setItem(key, "ok");
+          localStorage.removeItem(key);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      })();
+
+      const loadEntries = () => {
+        if (!storageAvailable) return [...defaultEntries];
+        try {
+          const saved = JSON.parse(localStorage.getItem(guestbookStorageKey));
+          if (Array.isArray(saved)) return saved;
+          return [...defaultEntries];
+        } catch (error) {
+          return [...defaultEntries];
+        }
+      };
+
+      let guestbookEntries = loadEntries();
+
+      const saveEntries = () => {
+        if (!storageAvailable) return;
+        localStorage.setItem(guestbookStorageKey, JSON.stringify(guestbookEntries));
+      };
+
+      const getInitials = (name) =>
+        name
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((part) => part[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase();
+
+      const avatarPalette = [
+        "linear-gradient(135deg, #e41e26, #f07878)",
+        "linear-gradient(135deg, #8f0f16, #ff8a80)",
+        "linear-gradient(135deg, #f59e0b, #facc15)",
+        "linear-gradient(135deg, #2563eb, #7c3aed)",
+        "linear-gradient(135deg, #10b981, #22c55e)",
+      ];
+
+      const getAvatarStyle = (name) => {
+        const label = name || "Guest";
+        const index = Math.abs(label.charCodeAt(0) + label.length) % avatarPalette.length;
+        return avatarPalette[index];
+      };
+
+      const renderEntries = () => {
+        if (!guestbookList) return;
+        guestbookList.innerHTML = "";
+
+        if (!guestbookEntries.length) {
+          const empty = document.createElement("p");
+          empty.className = "empty-state";
+          empty.textContent = "No notes yet. Be the first to send warm wishes.";
+          guestbookList.appendChild(empty);
+          return;
+        }
+
+        guestbookEntries
+          .slice()
+          .sort((a, b) => b.createdAt - a.createdAt)
+          .forEach((entry) => {
+            const item = document.createElement("li");
+            item.className = "entry";
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.style.background = getAvatarStyle(entry.name);
+            avatar.textContent = getInitials(entry.name || "?");
+
+            const content = document.createElement("div");
+            const title = document.createElement("h4");
+            title.textContent = entry.name || "Guest";
+
+            const meta = document.createElement("p");
+            meta.className = "meta";
+            const timestamp = new Date(entry.createdAt || Date.now()).toLocaleString("en-US", {
+              month: "short",
+              day: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            });
+            meta.textContent = `Shared on ${timestamp}`;
+
+            const bodyText = document.createElement("p");
+            bodyText.className = "body";
+            bodyText.textContent = entry.message;
+
+            content.appendChild(title);
+            content.appendChild(meta);
+
+            if (entry.email) {
+              const contact = document.createElement("p");
+              contact.className = "contact";
+              contact.innerHTML =
+                '<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"></path><path d="m4 6 8 7 8-7"></path></svg>';
+              const emailText = document.createElement("span");
+              emailText.textContent = entry.email;
+              contact.appendChild(emailText);
+              content.appendChild(contact);
+            }
+
+            content.appendChild(bodyText);
+            item.appendChild(avatar);
+            item.appendChild(content);
+            guestbookList.appendChild(item);
+          });
+      };
+
+      const showToast = (message) => {
+        if (!toast || !toastMessage) return;
+        toastMessage.textContent = message;
+        toast.hidden = false;
+        toast.classList.remove("visible");
+        const duration = body.classList.contains("reduced-motion") || prefersReducedMotion.matches ? 1200 : 2400;
+        requestAnimationFrame(() => toast.classList.add("visible"));
+        setTimeout(() => {
+          toast.classList.remove("visible");
+          setTimeout(() => {
+            toast.hidden = true;
+          }, 320);
+        }, duration);
+      };
+
+      const clearErrors = () => {
+        if (nameError) nameError.textContent = "";
+        if (emailError) emailError.textContent = "";
+        if (messageError) messageError.textContent = "";
+      };
+
+      guestbookForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        clearErrors();
+        const name = nameField?.value.trim();
+        const email = emailField?.value.trim();
+        const message = messageField?.value.trim();
+        let valid = true;
+
+        if (!name) {
+          nameError.textContent = "Please share your name so we can celebrate you.";
+          nameField?.focus();
+          valid = false;
+        }
+
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          emailError.textContent = "Enter a valid email or leave this blank.";
+          if (valid) emailField?.focus();
+          valid = false;
+        }
+
+        if (!message) {
+          messageError.textContent = "Please add a short message.";
+          if (valid) messageField?.focus();
+          valid = false;
+        }
+
+        if (!valid) return;
+
+        guestbookEntries.push({
+          name,
+          email,
+          message,
+          createdAt: Date.now(),
+        });
+        saveEntries();
+        renderEntries();
+        guestbookForm.reset();
+        showToast("Your warm wishes were added.");
+      });
+
+      [nameField, emailField, messageField].forEach((field) => {
+        field?.addEventListener("input", () => {
+          if (!field.value.trim()) return;
+          clearErrors();
+        });
+      });
+
+      clearGuestbook?.addEventListener("click", () => {
+        guestbookEntries = [];
+        saveEntries();
+        renderEntries();
+        showToast("Guestbook cleared.");
+      });
+
+      renderEntries();
 
       // Snowball Toss
       const snowballCanvas = document.getElementById("snowball-canvas");
