@@ -52,31 +52,88 @@
           <p class="section-subtitle">
             Swipe through cards and warm wishes from friends everywhere.
           </p>
-          <div class="carousel" aria-label="Holiday greeting cards">
-            <article class="card frosted-panel">
-              <h3 class="card-title">Snowy wishes</h3>
-              <p class="card-meta">From Jamie in Oslo</p>
-              <p>
-                May your cocoa stay warm and your playlists stay merry all
-                season long.
-              </p>
-            </article>
-            <article class="card frosted-panel">
-              <h3 class="card-title">Candy cane cheer</h3>
-              <p class="card-meta">From Priya in Toronto</p>
-              <p>
-                Here's to board games, bright lights, and laughter that echoes
-                past midnight.
-              </p>
-            </article>
-            <article class="card frosted-panel">
-              <h3 class="card-title">Starlit skies</h3>
-              <p class="card-meta">From Mateo in Quito</p>
-              <p>
-                Wishing you crisp nights, cozy blankets, and memories worth
-                framing.
-              </p>
-            </article>
+          <div class="carousel-shell">
+            <div class="carousel-toolbar frosted-panel" aria-label="Carousel settings">
+              <div class="custom-card">
+                <h3 class="card-title">Personalize a card</h3>
+                <label class="sr-only" for="custom-name">Sender name</label>
+                <input
+                  id="custom-name"
+                  name="custom-name"
+                  type="text"
+                  placeholder="Your name"
+                  autocomplete="name"
+                />
+                <label class="sr-only" for="custom-message">Message</label>
+                <textarea
+                  id="custom-message"
+                  name="custom-message"
+                  rows="2"
+                  placeholder="Your cozy wish"
+                ></textarea>
+                <button class="btn secondary" id="apply-card" type="button">
+                  Update my card
+                </button>
+              </div>
+              <div class="carousel-actions" aria-label="Playback and navigation">
+                <div class="toggle-group">
+                  <label class="toggle" for="chime-toggle">
+                    <input type="checkbox" id="chime-toggle" checked />
+                    <span>Gentle chime on slide change</span>
+                  </label>
+                  <p class="hint" id="preference-hint"></p>
+                </div>
+                <div class="nav-buttons">
+                  <button class="btn tertiary" id="prev-slide" type="button" aria-label="Previous card">
+                    ◀ Prev
+                  </button>
+                  <button class="btn tertiary" id="play-toggle" type="button" aria-pressed="true">
+                    Pause autoplay
+                  </button>
+                  <button class="btn tertiary" id="next-slide" type="button" aria-label="Next card">
+                    Next ▶
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel" aria-label="Holiday greeting cards">
+              <div class="carousel-track" role="list" tabindex="0">
+                <article class="card frosted-panel active" role="listitem" aria-label="Snowy wishes" tabindex="0">
+                  <div class="snow-corners" aria-hidden="true"></div>
+                  <h3 class="card-title">Snowy wishes</h3>
+                  <p class="card-meta">From Jamie in Oslo</p>
+                  <p>
+                    May your cocoa stay warm and your playlists stay merry all
+                    season long.
+                  </p>
+                </article>
+                <article class="card frosted-panel" role="listitem" aria-label="Candy cane cheer" tabindex="-1">
+                  <div class="snow-corners" aria-hidden="true"></div>
+                  <h3 class="card-title">Candy cane cheer</h3>
+                  <p class="card-meta">From Priya in Toronto</p>
+                  <p>
+                    Here's to board games, bright lights, and laughter that echoes
+                    past midnight.
+                  </p>
+                </article>
+                <article class="card frosted-panel" role="listitem" aria-label="Starlit skies" tabindex="-1">
+                  <div class="snow-corners" aria-hidden="true"></div>
+                  <h3 class="card-title">Starlit skies</h3>
+                  <p class="card-meta">From Mateo in Quito</p>
+                  <p>
+                    Wishing you crisp nights, cozy blankets, and memories worth
+                    framing.
+                  </p>
+                </article>
+                <article class="card frosted-panel" role="listitem" aria-label="Your custom card" tabindex="-1" id="custom-card">
+                  <div class="snow-corners" aria-hidden="true"></div>
+                  <h3 class="card-title" id="custom-title">Your name here</h3>
+                  <p class="card-meta" id="custom-meta">Personal touch</p>
+                  <p id="custom-body">Share a cozy wish and see it shine.</p>
+                </article>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -171,6 +228,209 @@
     </footer>
 
     <script>
+      (() => {
+        const track = document.querySelector('.carousel-track');
+        const slides = Array.from(track?.children ?? []);
+        const prevBtn = document.getElementById('prev-slide');
+        const nextBtn = document.getElementById('next-slide');
+        const playToggle = document.getElementById('play-toggle');
+        const chimeToggle = document.getElementById('chime-toggle');
+        const preferenceHint = document.getElementById('preference-hint');
+        const customName = document.getElementById('custom-name');
+        const customMessage = document.getElementById('custom-message');
+        const customApply = document.getElementById('apply-card');
+        const customCard = document.getElementById('custom-card');
+        const customTitle = document.getElementById('custom-title');
+        const customMeta = document.getElementById('custom-meta');
+        const customBody = document.getElementById('custom-body');
+
+        if (!track || slides.length === 0) return;
+
+        let current = 0;
+        let autoplay = true;
+        let autoplayTimer;
+        let isPointerDown = false;
+        let startX = 0;
+        let prefersMotionReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let prefersDataReduced = window.matchMedia('(prefers-reduced-data: reduce)');
+        let prefersAudioReduced = window.matchMedia('(prefers-reduced-transparency: reduce)');
+        const isAudioRestricted = () =>
+          prefersMotionReduced.matches || prefersDataReduced.matches || prefersAudioReduced.matches;
+
+        const audioContext = window.AudioContext ? new AudioContext() : null;
+        const playChime = () => {
+          if (!audioContext || isAudioRestricted() || !chimeToggle.checked) return;
+          if (audioContext.state === 'suspended') {
+            audioContext.resume().catch(() => {});
+          }
+
+          const now = audioContext.currentTime;
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          osc.frequency.exponentialRampToValueAtTime(1760, now + 0.35);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.12, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.7);
+        };
+
+        const announcePreference = () => {
+          const hints = [];
+          if (prefersMotionReduced.matches) hints.push('autoplay paused for reduced-motion preference');
+          if (prefersDataReduced.matches) hints.push('audio muted to respect reduced-data');
+          if (prefersAudioReduced.matches) hints.push('audio muted for reduced-transparency preference');
+          preferenceHint.textContent = hints.join(' · ');
+        };
+
+        if (isAudioRestricted()) {
+          chimeToggle.checked = false;
+          chimeToggle.disabled = true;
+        }
+
+        if (prefersMotionReduced.matches) {
+          autoplay = false;
+          playToggle.textContent = 'Play autoplay';
+          playToggle.setAttribute('aria-pressed', 'false');
+        }
+
+        announcePreference();
+
+        const updateSlides = (focus = false) => {
+          slides.forEach((slide, index) => {
+            const isActive = index === current;
+            slide.classList.toggle('active', isActive);
+            slide.setAttribute('aria-hidden', !isActive);
+            slide.setAttribute('tabindex', isActive ? '0' : '-1');
+          });
+          track.style.transform = `translateX(-${current * 100}%)`;
+
+          if (focus) {
+            slides[current].focus({ preventScroll: false });
+          }
+
+          playChime();
+        };
+
+        const goToSlide = (index, focus = false) => {
+          current = (index + slides.length) % slides.length;
+          updateSlides(focus);
+          restartAutoplay();
+        };
+
+        const restartAutoplay = () => {
+          clearInterval(autoplayTimer);
+          if (!autoplay) return;
+          autoplayTimer = setInterval(() => goToSlide(current + 1), 5500);
+        };
+
+        const toggleAutoplay = () => {
+          autoplay = !autoplay;
+          playToggle.setAttribute('aria-pressed', String(autoplay));
+          playToggle.textContent = autoplay ? 'Pause autoplay' : 'Play autoplay';
+          if (autoplay && !prefersMotionReduced.matches) {
+            restartAutoplay();
+          } else {
+            clearInterval(autoplayTimer);
+          }
+        };
+
+        const handlePointerUp = (clientX) => {
+          const delta = clientX - startX;
+          if (Math.abs(delta) > 40) {
+            goToSlide(delta < 0 ? current + 1 : current - 1);
+          }
+          isPointerDown = false;
+        };
+
+        nextBtn?.addEventListener('click', () => goToSlide(current + 1, true));
+        prevBtn?.addEventListener('click', () => goToSlide(current - 1, true));
+        playToggle?.addEventListener('click', toggleAutoplay);
+
+        track.addEventListener('pointerdown', (event) => {
+          isPointerDown = true;
+          startX = event.clientX;
+        });
+
+        track.addEventListener('pointermove', (event) => {
+          if (!isPointerDown) return;
+          if (event.pointerType === 'touch') {
+            event.preventDefault();
+          }
+        });
+
+        track.addEventListener('pointerup', (event) => handlePointerUp(event.clientX));
+        track.addEventListener('pointercancel', () => (isPointerDown = false));
+
+        track.addEventListener('keydown', (event) => {
+          if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            goToSlide(current + 1, true);
+          }
+          if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            goToSlide(current - 1, true);
+          }
+        });
+
+        customApply?.addEventListener('click', () => {
+          const name = (customName?.value || 'Your name here').trim();
+          const message = (customMessage?.value || 'Share a cozy wish and see it shine.').trim();
+          customTitle.textContent = name || 'Your name here';
+          customMeta.textContent = name ? `From ${name}` : 'Personal touch';
+          customBody.textContent = message;
+          customCard?.setAttribute('aria-label', `${name || 'Your'} custom card`);
+          goToSlide(slides.indexOf(customCard), true);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            clearInterval(autoplayTimer);
+          } else if (autoplay) {
+            restartAutoplay();
+          }
+        });
+
+        prefersMotionReduced.addEventListener('change', (event) => {
+          autoplay = !event.matches;
+          playToggle.setAttribute('aria-pressed', String(autoplay));
+          playToggle.textContent = autoplay ? 'Pause autoplay' : 'Play autoplay';
+          if (autoplay) restartAutoplay();
+          else clearInterval(autoplayTimer);
+          announcePreference();
+        });
+
+        prefersDataReduced.addEventListener('change', () => {
+          if (prefersDataReduced.matches || isAudioRestricted()) {
+            chimeToggle.checked = false;
+            chimeToggle.disabled = true;
+          } else {
+            chimeToggle.disabled = false;
+          }
+          announcePreference();
+        });
+
+        prefersAudioReduced.addEventListener('change', () => {
+          if (prefersAudioReduced.matches || isAudioRestricted()) {
+            chimeToggle.checked = false;
+            chimeToggle.disabled = true;
+          } else {
+            chimeToggle.disabled = false;
+          }
+          announcePreference();
+        });
+
+        updateSlides();
+        if (autoplay) restartAutoplay();
+      })();
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)"
       );
