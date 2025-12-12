@@ -1,0 +1,22 @@
+{
+  "name": "untitled-osp",
+  "version": "1.0.0",
+  "description": "Static holiday landing experience with cozy games and greetings.",
+  "type": "module",
+  "scripts": {
+    "format": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "vitest": "^4.0.15"
+  }
+}

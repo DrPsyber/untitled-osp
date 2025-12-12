@@ -449,7 +449,9 @@
       </div>
     </footer>
 
-    <script>
+    <script type="module">
+      import { computeLean, iconsMatch, resolveSnowballHit } from "./scripts/game-logic.js";
+
       const body = document.body;
 
       (() => {
@@ -1259,25 +1261,20 @@
           const scaleY = snowballCanvas.height / rect.height;
           const x = (clientX - rect.left) * scaleX;
           const y = (clientY - rect.top) * scaleY;
-          let hitSomething = false;
-          this.targets = this.targets.map((t) => {
-            const dist = Math.hypot(t.x - x, t.y - y);
-            if (dist <= t.r) {
-              hitSomething = true;
-              const bonus = Math.max(1, Math.floor(this.streak / 3));
-              this.score += 10 + bonus;
-              this.streak += 1;
-              snowballScoreEl.textContent = this.score;
-              snowballStreakEl.textContent = this.streak;
-              this.playPop();
-              return this.spawnTarget();
-            }
-            return t;
-          });
-          if (!hitSomething) {
-            this.streak = 0;
-            snowballStreakEl.textContent = this.streak;
-          }
+          const { targets, score, streak, hit } = resolveSnowballHit(
+            this.targets,
+            this.score,
+            this.streak,
+            x,
+            y,
+            () => this.spawnTarget()
+          );
+          this.targets = targets;
+          this.score = score;
+          this.streak = streak;
+          snowballScoreEl.textContent = this.score;
+          snowballStreakEl.textContent = this.streak;
+          if (hit) this.playPop();
         },
         playPop() {
           if (
@@ -1421,10 +1418,7 @@
           }
         },
         computeLean() {
-          if (this.ornaments.length === 0) return 0;
-          const base = this.ornaments[0].x;
-          const top = this.ornaments[this.ornaments.length - 1].x;
-          return top - base;
+          return computeLean(this.ornaments);
         },
       };
 
@@ -1520,7 +1514,7 @@
           this.moves += 1;
           matcherMoves.textContent = this.moves;
           const { tile: firstTile, icon: firstIcon } = this.first;
-          if (firstIcon === icon) {
+          if (iconsMatch(firstIcon, icon)) {
             tile.classList.add("matched");
             firstTile.classList.add("matched");
             tile.setAttribute("aria-pressed", "true");

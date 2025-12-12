@@ -1,0 +1,7 @@
+node_modules
+package-lock.json
+styles
+assets
+index.html
+.devcontainer
+.DS_Store
