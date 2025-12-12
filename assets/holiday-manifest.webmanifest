@@ -1,0 +1,17 @@
+{
+  "name": "Holiday Hub",
+  "short_name": "Holiday Hub",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f1322",
+  "theme_color": "#d21036",
+  "description": "Cozy crafts, games, and greetings to celebrate the season with friends and family.",
+  "icons": [
+    {
+      "src": "holiday-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
