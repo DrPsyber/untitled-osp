@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Holiday Hub</title>
+    <link rel="stylesheet" href="styles/theme.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#greetings">Skip to content</a>
+    <header class="hero">
+      <div class="container content">
+        <p class="badge">Holiday lounge</p>
+        <h1>Season's greetings</h1>
+        <p>
+          Gather around the digital fireplace for heartfelt cards, cozy
+          mini-games, and a cheerful guestbook to share the joy.
+        </p>
+        <div class="actions">
+          <a class="btn glow-accent" href="#games">Play mini-games</a>
+          <a class="btn secondary" href="#guestbook">Sign the guestbook</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section" id="greetings">
+        <div class="container">
+          <h2 class="section-title">Festive greetings</h2>
+          <p class="section-subtitle">
+            Swipe through cards and warm wishes from friends everywhere.
+          </p>
+          <div class="carousel" aria-label="Holiday greeting cards">
+            <article class="card frosted-panel">
+              <h3 class="card-title">Snowy wishes</h3>
+              <p class="card-meta">From Jamie in Oslo</p>
+              <p>
+                May your cocoa stay warm and your playlists stay merry all
+                season long.
+              </p>
+            </article>
+            <article class="card frosted-panel">
+              <h3 class="card-title">Candy cane cheer</h3>
+              <p class="card-meta">From Priya in Toronto</p>
+              <p>
+                Here's to board games, bright lights, and laughter that echoes
+                past midnight.
+              </p>
+            </article>
+            <article class="card frosted-panel">
+              <h3 class="card-title">Starlit skies</h3>
+              <p class="card-meta">From Mateo in Quito</p>
+              <p>
+                Wishing you crisp nights, cozy blankets, and memories worth
+                framing.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <div class="ribbon-divider"><span>Holiday mini-games</span></div>
+
+      <section class="section" id="games">
+        <div class="container">
+          <h2 class="section-title">Mini-games lounge</h2>
+          <p class="section-subtitle">
+            Quick rounds of festive fun while the cocoa cools.
+          </p>
+          <div class="games-grid">
+            <article class="game-card glow-accent">
+              <span class="badge">New</span>
+              <h3>Snowball Shuffle</h3>
+              <p>Match the falling snowballs before they pile up too high.</p>
+              <a class="btn secondary" href="#">Launch</a>
+            </article>
+            <article class="game-card glow-accent">
+              <span class="badge">Co-op</span>
+              <h3>Gift Wrap Relay</h3>
+              <p>
+                Race a friend to wrap gifts with perfect corners and glossy
+                ribbons.
+              </p>
+              <a class="btn secondary" href="#">Launch</a>
+            </article>
+            <article class="game-card glow-accent">
+              <span class="badge">Chill</span>
+              <h3>Fireplace Lo-Fi</h3>
+              <p>
+                Compose a cozy beat with bells, crackles, and sleigh chimes.
+              </p>
+              <a class="btn secondary" href="#">Launch</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="guestbook">
+        <div class="container">
+          <h2 class="section-title">Sign the guestbook</h2>
+          <p class="section-subtitle">
+            Leave a note for the hosts or greet fellow guests.
+          </p>
+          <div class="guestbook">
+            <form class="frosted-panel">
+              <label for="name">Name</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Your name"
+              />
+              <label for="message">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                placeholder="Share some holiday cheer"
+              ></textarea>
+              <button class="btn" type="submit">Send</button>
+            </form>
+            <div class="frosted-panel">
+              <h3 class="card-title">Latest notes</h3>
+              <p>
+                <strong>Alex</strong>: Can't wait for the gingerbread showdown!
+              </p>
+              <p>
+                <strong>Rin</strong>: Saving a spot by the fire for everyone.
+              </p>
+              <p><strong>Lee</strong>: This guestbook is the coziest corner.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p class="section-title footer-title">Share the joy</p>
+        <p class="section-subtitle footer-subtitle">
+          Spread this experience with friends.
+        </p>
+        <ul class="share-buttons" aria-label="Share this page">
+          <li><a href="#">Share on X</a></li>
+          <li><a href="#">Share on Instagram</a></li>
+          <li><a href="#">Copy invite link</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
